@@ -6,16 +6,19 @@ import {
   getPages,
   getSocialLinks
 } from "../lib/site";
+import { getPublishedArticles } from "../lib/articles";
 
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const [settings, categories, pages, socialLinks] = await Promise.all([
-    getSiteSettings(),
-    getCategories(),
-    getPages(),
-    getSocialLinks()
-  ]);
+  const [settings, categories, pages, socialLinks, articles] =
+    await Promise.all([
+      getSiteSettings(),
+      getCategories(),
+      getPages(),
+      getSocialLinks(),
+      getPublishedArticles(30)
+    ]);
 
   return (
     <SiteChrome
@@ -28,7 +31,9 @@ export default async function HomePage() {
       <main>
         <section className="hero">
           <div className="container">
-            <p className="hero-label">Independent ideas &amp; stories</p>
+            <p className="hero-label">
+              Independent ideas &amp; stories
+            </p>
 
             <h1>{settings.site_name}</h1>
 
@@ -44,26 +49,62 @@ export default async function HomePage() {
               Latest articles
             </h2>
 
-            <div className="article-grid">
-              <article className="article-card">
-                <div className="article-image" />
+            {articles.length === 0 ? (
+              <p style={{ color: "#666" }}>
+                No articles have been published yet.
+              </p>
+            ) : (
+              <div className="article-grid">
+                {articles.map((article) => (
+                  <article
+                    className="article-card"
+                    key={article.id}
+                  >
+                    {article.featured_image ? (
+                      <img
+                        src={article.featured_image}
+                        alt={article.title}
+                        className="article-image"
+                      />
+                    ) : (
+                      <div className="article-image" />
+                    )}
 
-                <div className="article-category">
-                  THE INDEX
-                </div>
+                    {article.categories && (
+                      <Link
+                        href={`/category/${article.categories.slug}`}
+                        className="article-category"
+                      >
+                        {article.categories.name}
+                      </Link>
+                    )}
 
-                <h2>Meaningful content starts here</h2>
+                    <h2>
+                      <Link href={`/article/${article.slug}`}>
+                        {article.title}
+                      </Link>
+                    </h2>
 
-                <p className="article-excerpt">
-                  Articles, ideas, guides and stories will appear here
-                  when they are published from the Admin app.
-                </p>
+                    {article.excerpt && (
+                      <p className="article-excerpt">
+                        {article.excerpt}
+                      </p>
+                    )}
 
-                <span className="article-date">
-                  Coming soon
-                </span>
-              </article>
-            </div>
+                    {article.published_at && (
+                      <time
+                        className="article-date"
+                        dateTime={article.published_at}
+                      >
+                        {new Date(
+                          article.published_at
+                        ).toLocaleDateString()}
+                      </time>
+                    )}
+                  </article>
+                ))}
+              </div>
+            )}
           </div>
         </section>
       </main>
