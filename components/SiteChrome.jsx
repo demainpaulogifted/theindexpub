@@ -9,7 +9,7 @@ export default function SiteChrome({
   description = "",
   categories = [],
   pages = [],
-  socialLinks = []
+  socialLinks = [],
 }) {
   const [open, setOpen] = useState(false);
 
@@ -42,10 +42,13 @@ export default function SiteChrome({
                 padding: "20px 0 25px",
                 borderTop: "1px solid #eee",
                 display: "grid",
-                gap: "12px"
+                gap: "12px",
               }}
             >
-              <Link href="/" onClick={() => setOpen(false)}>
+              <Link
+                href="/"
+                onClick={() => setOpen(false)}
+              >
                 Home
               </Link>
 
@@ -65,7 +68,10 @@ export default function SiteChrome({
 
       <div className="container">
         {categories.length > 0 && (
-          <nav className="categories" aria-label="Article categories">
+          <nav
+            className="categories"
+            aria-label="Article categories"
+          >
             {categories.map((category) => (
               <Link
                 key={category.id}
@@ -80,8 +86,18 @@ export default function SiteChrome({
       </div>
 
       {description && (
-        <div className="container" style={{ paddingTop: 15 }}>
-          <p style={{ margin: 0, color: "#666" }}>{description}</p>
+        <div
+          className="container"
+          style={{ paddingTop: 15 }}
+        >
+          <p
+            style={{
+              margin: 0,
+              color: "#666",
+            }}
+          >
+            {description}
+          </p>
         </div>
       )}
 
@@ -91,10 +107,17 @@ export default function SiteChrome({
         <div className="container">
           <div className="footer-inner">
             <div>
-              <div className="footer-brand">{siteName}</div>
+              <div className="footer-brand">
+                {siteName}
+              </div>
 
               {description && (
-                <p style={{ maxWidth: 420, lineHeight: 1.6 }}>
+                <p
+                  style={{
+                    maxWidth: 420,
+                    lineHeight: 1.6,
+                  }}
+                >
                   {description}
                 </p>
               )}
@@ -103,14 +126,22 @@ export default function SiteChrome({
             <div>
               <div className="footer-links">
                 {pages.map((page) => (
-                  <Link key={page.id} href={`/page/${page.slug}`}>
+                  <Link
+                    key={page.id}
+                    href={`/page/${page.slug}`}
+                  >
                     {page.title}
                   </Link>
                 ))}
               </div>
 
               {socialLinks.length > 0 && (
-                <div className="social-links" style={{ marginTop: 18 }}>
+                <div
+                  className="social-links"
+                  style={{
+                    marginTop: 18,
+                  }}
+                >
                   {socialLinks.map((social) => (
                     <a
                       key={social.id}
@@ -118,7 +149,8 @@ export default function SiteChrome({
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      {social.label || social.platform}
+                      {social.label ||
+                        social.platform}
                     </a>
                   ))}
                 </div>
@@ -127,10 +159,11 @@ export default function SiteChrome({
           </div>
 
           <div className="footer-bottom">
-            © 2025 {siteName}. All rights reserved.
+            © {new Date().getFullYear()}{" "}
+            {siteName}. All rights reserved.
           </div>
         </div>
       </footer>
     </>
   );
-      }
+}
