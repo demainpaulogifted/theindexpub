@@ -1,29 +1,45 @@
 import Link from "next/link";
 import SiteChrome from "../components/SiteChrome";
+
 import {
   getSiteSettings,
   getCategories,
   getPages,
-  getSocialLinks
+  getSocialLinks,
 } from "../lib/site";
+
 import { getPublishedArticles } from "../lib/articles";
 
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const [settings, categories, pages, socialLinks, articles] =
-    await Promise.all([
-      getSiteSettings(),
-      getCategories(),
-      getPages(),
-      getSocialLinks(),
-      getPublishedArticles(30)
-    ]);
+  const [
+    settings,
+    categories,
+    pages,
+    socialLinks,
+    articles,
+  ] = await Promise.all([
+    getSiteSettings(),
+    getCategories(),
+    getPages(),
+    getSocialLinks(),
+    getPublishedArticles(30),
+  ]);
+
+  const siteName =
+    settings?.site_name || "THE INDEX";
+
+  const description =
+    settings?.tagline ||
+    settings?.blog_description ||
+    settings?.meta_description ||
+    "";
 
   return (
     <SiteChrome
-      siteName={settings.site_name}
-      description={settings.description}
+      siteName={siteName}
+      description={description}
       categories={categories}
       pages={pages}
       socialLinks={socialLinks}
@@ -35,10 +51,10 @@ export default async function HomePage() {
               Independent ideas &amp; stories
             </p>
 
-            <h1>{settings.site_name}</h1>
+            <h1>{siteName}</h1>
 
             <p className="hero-description">
-              {settings.description}
+              {description}
             </p>
           </div>
         </section>
@@ -70,17 +86,34 @@ export default async function HomePage() {
                       <div className="article-image" />
                     )}
 
-                    {article.categories && (
-                      <Link
-                        href={`/category/${article.categories.slug}`}
-                        className="article-category"
+                    {article.categories?.length > 0 && (
+                      <div
+                        className="article-categories"
+                        style={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: "8px",
+                          marginBottom: "10px",
+                        }}
                       >
-                        {article.categories.name}
-                      </Link>
+                        {article.categories.map(
+                          (category) => (
+                            <Link
+                              key={category.id}
+                              href={`/category/${category.slug}`}
+                              className="article-category"
+                            >
+                              {category.name}
+                            </Link>
+                          )
+                        )}
+                      </div>
                     )}
 
                     <h2>
-                      <Link href={`/article/${article.slug}`}>
+                      <Link
+                        href={`/article/${article.slug}`}
+                      >
                         {article.title}
                       </Link>
                     </h2>
@@ -94,7 +127,9 @@ export default async function HomePage() {
                     {article.published_at && (
                       <time
                         className="article-date"
-                        dateTime={article.published_at}
+                        dateTime={
+                          article.published_at
+                        }
                       >
                         {new Date(
                           article.published_at
