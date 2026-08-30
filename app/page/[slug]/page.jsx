@@ -4,7 +4,7 @@ import {
   getSiteSettings,
   getCategories,
   getPages,
-  getSocialLinks
+  getSocialLinks,
 } from "../../../lib/site";
 import { supabase } from "../../../lib/supabase";
 
@@ -28,42 +28,69 @@ async function getPage(slug) {
 
 export async function generateMetadata({ params }) {
   const page = await getPage(params.slug);
+  const settings = await getSiteSettings();
+
+  const siteName =
+    settings?.site_name || "THE INDEX";
 
   if (!page) {
     return {
-      title: "Page not found | THE INDEX"
+      title: `Page not found | ${siteName}`,
     };
   }
 
   return {
-    title: page.meta_title || `${page.title} | THE INDEX`,
+    title:
+      page.meta_title ||
+      `${page.title} | ${siteName}`,
+
     description:
       page.meta_description ||
-      `Read ${page.title} on THE INDEX.`,
+      settings?.meta_description ||
+      settings?.blog_description ||
+      settings?.tagline ||
+      `Read ${page.title} on ${siteName}.`,
+
     alternates: {
-      canonical: `/page/${page.slug}`
-    }
+      canonical: `/page/${page.slug}`,
+    },
   };
 }
 
-export default async function CustomPage({ params }) {
-  const [page, settings, categories, pages, socialLinks] =
-    await Promise.all([
-      getPage(params.slug),
-      getSiteSettings(),
-      getCategories(),
-      getPages(),
-      getSocialLinks()
-    ]);
+export default async function CustomPage({
+  params,
+}) {
+  const [
+    page,
+    settings,
+    categories,
+    pages,
+    socialLinks,
+  ] = await Promise.all([
+    getPage(params.slug),
+    getSiteSettings(),
+    getCategories(),
+    getPages(),
+    getSocialLinks(),
+  ]);
 
   if (!page) {
     notFound();
   }
 
+  const siteName =
+    settings?.site_name || "THE INDEX";
+
+  const description =
+    settings?.blog_description ||
+    settings?.tagline ||
+    settings?.meta_description ||
+    "";
+
   return (
     <SiteChrome
-      siteName={settings.site_name}
-      description={settings.description}
+      siteName={siteName}
+      description={description}
       categories={categories}
       pages={pages}
       socialLinks={socialLinks}
@@ -77,11 +104,12 @@ export default async function CustomPage({ params }) {
           <article
             className="article-content"
             dangerouslySetInnerHTML={{
-              __html: page.content || ""
+              __html:
+                page.content_html || "",
             }}
           />
         </div>
       </main>
     </SiteChrome>
   );
-    }
+}
