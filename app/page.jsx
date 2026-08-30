@@ -30,9 +30,12 @@ export default async function HomePage() {
   const siteName =
     settings?.site_name || "THE INDEX";
 
+  const tagline =
+    settings?.tagline || "";
+
   const description =
-    settings?.tagline ||
     settings?.blog_description ||
+    tagline ||
     settings?.meta_description ||
     "";
 
@@ -53,9 +56,11 @@ export default async function HomePage() {
 
             <h1>{siteName}</h1>
 
-            <p className="hero-description">
-              {description}
-            </p>
+            {tagline && (
+              <p className="hero-description">
+                {tagline}
+              </p>
+            )}
           </div>
         </section>
 
