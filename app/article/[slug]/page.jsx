@@ -166,8 +166,34 @@ export default async function ArticlePage({ params }) {
 
             <h1>{article.title}</h1>
 
-            {article.excerpt &&
-{/* ========== TOP OF ARTICLE AD ========== */}
+            {article.excerpt && (
+              <p className="hero-description">{article.excerpt}</p>
+            )}
+
+            {article.published_at && (
+              <time
+                className="article-date"
+                dateTime={article.published_at}
+              >
+                {new Date(article.published_at).toLocaleDateString()}
+              </time>
+            )}
+          </header>
+
+          {article.featured_image && (
+            <img
+              src={article.featured_image}
+              alt={article.title}
+              className="article-image"
+              style={{
+                maxWidth: "900px",
+                width: "100%",
+                marginBottom: "40px",
+              }}
+            />
+          )}
+
+          {/* TOP OF ARTICLE AD */}
           {topAds.length > 0 && (
             <div style={{ marginBottom: "32px" }}>
               {topAds.map((ad) => (
@@ -183,7 +209,7 @@ export default async function ArticlePage({ params }) {
             }}
           />
 
-          {/* ========== BOTTOM OF ARTICLE AD ========== */}
+          {/* BOTTOM OF ARTICLE AD */}
           {bottomAds.length > 0 && (
             <div style={{ marginTop: "40px" }}>
               {bottomAds.map((ad) => (
