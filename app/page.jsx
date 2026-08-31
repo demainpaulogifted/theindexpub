@@ -31,9 +31,10 @@ export default async function HomePage() {
     getActiveAds({ placement: "homepage", limit: 2 }),
   ])
 
+  // Fetch more between-article ads so we have enough
   const betweenAds = await getActiveAds({
     placement: "between_articles",
-    limit: 3,
+    limit: 15,
   })
 
   const siteName = settings?.site_name || "THE INDEX"
@@ -61,7 +62,7 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Homepage ads */}
+        {/* Homepage placement ads */}
         {homepageAds.length > 0 && (
           <div className="container">
             {homepageAds.map((ad) => (
@@ -135,11 +136,11 @@ export default async function HomePage() {
                       )}
                     </article>
 
-                    {/* Insert a between_articles ad after every 3rd article */}
-                    {(index + 1) % 3 === 0 &&
-                      betweenAds[Math.floor(index / 3)] && (
+                    {/* Show an ad after every 2 articles */}
+                    {(index + 1) % 2 === 0 &&
+                      betweenAds[Math.floor(index / 2)] && (
                         <AdBanner
-                          ad={betweenAds[Math.floor(index / 3)]}
+                          ad={betweenAds[Math.floor(index / 2)]}
                         />
                       )}
                   </div>
