@@ -85,15 +85,10 @@ function getRecommendedArticles(currentArticle, allArticles) {
         }
       }
 
-      return {
-        article,
-        score,
-      }
+      return { article, score }
     })
     .sort((a, b) => {
-      if (b.score !== a.score) {
-        return b.score - a.score
-      }
+      if (b.score !== a.score) return b.score - a.score
       return (
         new Date(b.article.published_at || 0) -
         new Date(a.article.published_at || 0)
@@ -101,6 +96,63 @@ function getRecommendedArticles(currentArticle, allArticles) {
     })
     .slice(0, 6)
     .map((item) => item.article)
+}
+
+/**
+ * Decide how many in-content ads to show based on article length
+ */
+function getAdCountByLength(html = "") {
+  const text = html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
+  const wordCount = text.split(" ").filter(Boolean).length
+
+  if (wordCount < 400) return 1
+  if (wordCount < 900) return 2
+  return 3 // long articles
+}
+
+/**
+ * Split HTML into blocks and insert ads between them
+ */
+function injectAdsIntoContent(html = "", ads = []) {
+  if (!html || ads.length === 0) {
+    return [{ type: "html", content: html }]
+  }
+
+  // Split by closing paragraph tags
+  const parts = html.split(/(<\/p>)/i).filter(Boolean)
+
+  const blocks = []
+  let paragraphCount = 0
+  let adIndex = 0
+
+  const insertEvery = Math.max(
+    2,
+    Math.floor(parts.length / (ads.length + 1))
+  )
+
+  for (let i = 0; i < parts.length; i++) {
+    blocks.push({ type: "html", content: parts[i] })
+
+    if (parts[i].toLowerCase().includes("</p>")) {
+      paragraphCount++
+
+      if (
+        paragraphCount % insertEvery === 0 &&
+        adIndex < ads.length
+      ) {
+        blocks.push({ type: "ad", ad: ads[adIndex] })
+        adIndex++
+      }
+    }
+  }
+
+  // If we still have remaining ads, put them at the end
+  while (adIndex < ads.length) {
+    blocks.push({ type: "ad", ad: ads[adIndex] })
+    adIndex++
+  }
+
+  return blocks
 }
 
 export default async function ArticlePage({ params }) {
@@ -124,8 +176,8 @@ export default async function ArticlePage({ params }) {
     notFound()
   }
 
-  // Load ads for this article
-  const [topAds, bottomAds] = await Promise.all([
+  // Fetch different ad placements
+  const [topAds, bottomAds, inContentAds] = await Promise.all([
     getActiveAds({
       placement: "article_top",
       articleId: article.id,
@@ -136,7 +188,22 @@ export default async function ArticlePage({ params }) {
       articleId: article.id,
       limit: 1,
     }),
+    getActiveAds({
+      placement: "in_content",          // ← new placement
+      articleId: article.id,
+      limit: 5,
+    }),
   ])
+
+  // Decide how many in-content ads based on length
+  const maxInContent = getAdCountByLength(article.content || "")
+  const selectedInContentAds = inContentAds.slice(0, maxInContent)
+
+  // Build content with ads injected
+  const contentBlocks = injectAdsIntoContent(
+    article.content || "",
+    selectedInContentAds
+  )
 
   const recommendedArticles = getRecommendedArticles(
     article,
@@ -202,12 +269,26 @@ export default async function ArticlePage({ params }) {
             </div>
           )}
 
-          <article
-            className="article-content"
-            dangerouslySetInnerHTML={{
-              __html: article.content || "",
-            }}
-          />
+          {/* ARTICLE CONTENT + SMART IN-CONTENT ADS */}
+          <div className="article-content">
+            {contentBlocks.map((block, index) => {
+              if (block.type === "ad") {
+                return (
+                  <AdBanner
+                    key={`ad-\( {block.ad.id}- \){index}`}
+                    ad={block.ad}
+                  />
+                )
+              }
+
+              return (
+                <div
+                  key={`html-${index}`}
+                  dangerouslySetInnerHTML={{ __html: block.content }}
+                />
+              )
+            })}
+          </div>
 
           {/* BOTTOM OF ARTICLE AD */}
           {bottomAds.length > 0 && (
@@ -239,12 +320,7 @@ export default async function ArticlePage({ params }) {
                 More from THE INDEX
               </h2>
 
-              <p
-                className="muted"
-                style={{
-                  marginBottom: "28px",
-                }}
-              >
+              <p className="muted" style={{ marginBottom: "28px" }}>
                 More stories you may find interesting.
               </p>
 
@@ -297,7 +373,7 @@ export default async function ArticlePage({ params }) {
                           >
                             {Array.isArray(recommended.categories)
                               ? recommended.categories
-                                  .map((category) => category.name)
+                                  .map((c) => c.name)
                                   .join(" • ")
                               : recommended.categories.name}
                           </div>
