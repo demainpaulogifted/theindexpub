@@ -1,7 +1,7 @@
 export default function robots() {
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ||
-    "http://localhost:3000";
+    "https://theindex.name.ng";
 
   return {
     rules: {
@@ -9,6 +9,6 @@ export default function robots() {
       allow: "/",
       disallow: ["/api/", "/admin/"]
     },
-    sitemap: `${siteUrl}/sitemap.xml`
+    sitemap: `${siteUrl.replace(/\/+$/, "")}/sitemap.xml`
   };
 }
