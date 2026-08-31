@@ -1,4 +1,5 @@
 import "./globals.css";
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 import {
   getSiteSettings,
@@ -71,7 +72,10 @@ export async function generateMetadata() {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {children}
+        <SpeedInsights />
+      </body>
     </html>
   );
 }
