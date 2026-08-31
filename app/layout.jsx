@@ -4,6 +4,8 @@ import {
   getSiteSettings,
 } from "../lib/site";
 
+import { SpeedInsights } from '@vercel/speed-insights/next';
+
 export const revalidate = 60;
 
 export async function generateMetadata() {
@@ -71,7 +73,10 @@ export async function generateMetadata() {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {children}
+        <SpeedInsights />
+      </body>
     </html>
   );
 }
