@@ -1,4 +1,4 @@
-import { getSiteSettings } from "../../../lib/site"
+import { getSiteSettings } from "../../lib/site"
 
 export const revalidate = 300
 
@@ -23,8 +23,7 @@ Sitemap: ${siteUrl.replace(/\/+$/, "")}/sitemap.xml`
   return new Response(content, {
     status: 200,
     headers: {
-      "Content-Type":
-        "text/plain; charset=utf-8",
+      "Content-Type": "text/plain; charset=utf-8",
       "Cache-Control":
         "public, s-maxage=300, stale-while-revalidate=600",
     },
