@@ -13,24 +13,28 @@ export async function POST(request) {
       )
     }
 
-    const userAgent =
-      request.headers.get("user-agent") || ""
+    const userAgent = request.headers.get("user-agent") || ""
 
     const visitorId =
+      body?.visitorId ||
       request.headers.get("x-visitor-id") ||
       "anonymous"
 
     const referrer =
+      body?.referrer ||
       request.headers.get("referer") ||
+      request.headers.get("referrer") ||
       null
 
     const country =
+      request.headers.get("x-country") ||
       request.headers.get("x-vercel-ip-country") ||
       request.headers.get("x-nf-country") ||
       "Unknown"
 
     const city =
       request.headers.get("x-vercel-ip-city") ||
+      request.headers.get("x-nf-city") ||
       "Unknown"
 
     let deviceType = "desktop"
@@ -45,11 +49,11 @@ export async function POST(request) {
 
     if (/edg/i.test(userAgent)) {
       browser = "Edge"
-    } else if (/chrome/i.test(userAgent)) {
+    } else if (/chrome/i.test(userAgent) && !/edg/i.test(userAgent)) {
       browser = "Chrome"
     } else if (/firefox/i.test(userAgent)) {
       browser = "Firefox"
-    } else if (/safari/i.test(userAgent)) {
+    } else if (/safari/i.test(userAgent) && !/chrome/i.test(userAgent)) {
       browser = "Safari"
     } else if (/opera|opr/i.test(userAgent)) {
       browser = "Opera"
@@ -69,25 +73,20 @@ export async function POST(request) {
       operatingSystem = "Linux"
     }
 
-    const { error } = await supabase
-      .from("article_views")
-      .insert({
-        article_id: articleId,
-        visitor_id: visitorId,
-        device_type: deviceType,
-        browser,
-        operating_system: operatingSystem,
-        country,
-        city,
-        referrer,
-        user_agent: userAgent,
-      })
+    const { error } = await supabase.from("article_views").insert({
+      article_id: articleId,
+      visitor_id: visitorId,
+      device_type: deviceType,
+      browser,
+      operating_system: operatingSystem,
+      country,
+      city,
+      referrer,
+      user_agent: userAgent,
+    })
 
     if (error) {
-      console.error(
-        "Article view insert error:",
-        error
-      )
+      console.error("Article view insert error:", error)
 
       return NextResponse.json(
         { error: "Unable to record article view" },
@@ -99,10 +98,7 @@ export async function POST(request) {
       success: true,
     })
   } catch (error) {
-    console.error(
-      "Article view API error:",
-      error
-    )
+    console.error("Article view API error:", error)
 
     return NextResponse.json(
       { error: "Invalid request" },
