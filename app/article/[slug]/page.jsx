@@ -4,6 +4,7 @@ import Link from "next/link"
 import SiteChrome from "../../../components/SiteChrome"
 import ViewTracker from "../../../components/ViewTracker"
 import AdBanner from "../../../components/AdBanner"
+import ArticleActions from "../../../components/ArticleActions"
 
 import {
   getSiteSettings,
@@ -189,7 +190,7 @@ export default async function ArticlePage({ params }) {
       limit: 1,
     }),
     getActiveAds({
-      placement: "in_content",          // ← new placement
+      placement: "in_content",
       articleId: article.id,
       limit: 5,
     }),
@@ -298,6 +299,14 @@ export default async function ArticlePage({ params }) {
               ))}
             </div>
           )}
+
+          {/* SHARE + LIKE */}
+          <ArticleActions
+            articleId={article.id}
+            title={article.title}
+            slug={article.slug}
+            excerpt={article.excerpt || ""}
+          />
 
           <ViewTracker articleId={article.id} />
 
