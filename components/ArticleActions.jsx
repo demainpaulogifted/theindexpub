@@ -24,6 +24,11 @@ function getVisitorId() {
   }
 }
 
+function getArticleUrl(slug) {
+  if (typeof window === "undefined") return ""
+  return `\( {window.location.origin}/article/ \){slug}`
+}
+
 export default function ArticleActions({
   articleId,
   title,
@@ -34,13 +39,12 @@ export default function ArticleActions({
   const [likeCount, setLikeCount] = useState(0)
   const [loadingLike, setLoadingLike] = useState(false)
   const [copied, setCopied] = useState(false)
-  const [shareUrl, setShareUrl] = useState("")
+  const [ready, setReady] = useState(false)
 
+  // Mark client as ready so we only build real share URLs in the browser
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      setShareUrl(`\( {window.location.origin}/article/ \){slug}`)
-    }
-  }, [slug])
+    setReady(true)
+  }, [])
 
   useEffect(() => {
     if (!articleId) return
@@ -127,7 +131,7 @@ export default function ArticleActions({
   }
 
   async function copyLink() {
-    const url = shareUrl || (typeof window !== "undefined" ? window.location.href : "")
+    const url = getArticleUrl(slug)
     if (!url) return
 
     try {
@@ -146,35 +150,46 @@ export default function ArticleActions({
     }
   }
 
-  const encodedUrl = encodeURIComponent(shareUrl || "")
+  // Build real URLs only on the client after mount
+  const shareUrl = ready ? getArticleUrl(slug) : ""
+  const encodedUrl = encodeURIComponent(shareUrl)
   const encodedTitle = encodeURIComponent(title || "")
-  const encodedText = encodeURIComponent(
-    excerpt ? `${title} — ${excerpt}` : title || ""
-  )
+  const textForWhatsApp = excerpt
+    ? `${title || ""} — ${excerpt}`
+    : title || ""
+  const encodedText = encodeURIComponent(textForWhatsApp)
 
   const shareLinks = [
     {
       name: "X",
       label: "Share on X",
-      href: `https://twitter.com/intent/tweet?url=\( {encodedUrl}&text= \){encodedTitle}`,
+      href: shareUrl
+        ? `https://twitter.com/intent/tweet?url=\( {encodedUrl}&text= \){encodedTitle}`
+        : "#",
       color: "#000",
     },
     {
       name: "Facebook",
       label: "Share on Facebook",
-      href: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+      href: shareUrl
+        ? `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`
+        : "#",
       color: "#1877F2",
     },
     {
       name: "WhatsApp",
       label: "Share on WhatsApp",
-      href: `https://api.whatsapp.com/send?text=\( {encodedText}%20 \){encodedUrl}`,
+      href: shareUrl
+        ? `https://api.whatsapp.com/send?text=\( {encodedText}%20 \){encodedUrl}`
+        : "#",
       color: "#25D366",
     },
     {
       name: "LinkedIn",
       label: "Share on LinkedIn",
-      href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
+      href: shareUrl
+        ? `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`
+        : "#",
       color: "#0A66C2",
     },
   ]
@@ -194,9 +209,7 @@ export default function ArticleActions({
             <span className="like-icon" aria-hidden="true">
               {liked ? "♥" : "♡"}
             </span>
-            <span className="like-label">
-              {liked ? "Liked" : "Like"}
-            </span>
+            <span className="like-label">{liked ? "Liked" : "Like"}</span>
             <span className="like-count">{likeCount}</span>
           </button>
         </div>
@@ -212,9 +225,14 @@ export default function ArticleActions({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="share-btn"
-                style={{ "--share-color": item.color }}
+                style={{ ["--share-color"]: item.color }}
                 aria-label={item.label}
                 title={item.label}
+                onClick={(e) => {
+                  if (!shareUrl) {
+                    e.preventDefault()
+                  }
+                }}
               >
                 {item.name}
               </a>
