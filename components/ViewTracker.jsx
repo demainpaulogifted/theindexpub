@@ -13,7 +13,7 @@ function getVisitorId() {
       id =
         typeof crypto !== "undefined" && crypto.randomUUID
           ? crypto.randomUUID()
-          : `v_\( {Date.now()}_ \){Math.random().toString(36).slice(2, 11)}`
+          : "v_" + Date.now() + "_" + Math.random().toString(36).slice(2, 11)
       localStorage.setItem(key, id)
     }
 
@@ -37,7 +37,7 @@ export default function ViewTracker({ articleId }) {
         const referrer =
           typeof document !== "undefined" ? document.referrer || null : null
 
-        await fetch("/api/view", {
+        const res = await fetch("/api/view", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -49,12 +49,17 @@ export default function ViewTracker({ articleId }) {
           }),
           keepalive: true,
         })
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}))
+          console.error("View tracking failed:", res.status, data)
+        }
       } catch (error) {
         console.error("View tracking failed:", error)
       }
     }
 
-    const timer = setTimeout(trackView, 400)
+    const timer = setTimeout(trackView, 500)
 
     return () => {
       cancelled = true
