@@ -440,3 +440,12 @@ img {
     align-items: flex-start;
   }
 }
+.share-more {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.more-btn {
+  --share-color: #111;
+  font-weight: 700;
+}
