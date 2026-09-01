@@ -259,6 +259,115 @@ img {
   letter-spacing: 1px;
 }
 
+/* Article share + like */
+.article-actions {
+  max-width: 780px;
+  margin: 48px 0 0;
+  padding: 28px 0 8px;
+  border-top: 1px solid #e5e5e5;
+}
+
+.article-actions-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.like-row {
+  display: flex;
+  align-items: center;
+}
+
+.like-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid #ddd;
+  border-radius: 999px;
+  background: #fff;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.like-button:hover {
+  border-color: #111;
+}
+
+.like-button.liked {
+  border-color: #e11d48;
+  color: #e11d48;
+  background: #fff1f2;
+}
+
+.like-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.like-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.like-label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.like-count {
+  font-size: 13px;
+  font-weight: 700;
+  min-width: 1.2em;
+  text-align: center;
+}
+
+.share-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.share-label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #666;
+}
+
+.share-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 14px;
+  border: 1px solid #ddd;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.share-btn:hover {
+  border-color: var(--share-color, #111);
+  color: var(--share-color, #111);
+}
+
+.copy-btn {
+  --share-color: #111;
+}
+
 .site-footer {
   border-top: 1px solid #ddd;
   padding: 45px 0;
@@ -325,4 +434,9 @@ img {
   .article-page {
     padding-top: 45px;
   }
+
+  .article-actions-inner {
+    flex-direction: column;
+    align-items: flex-start;
   }
+}
