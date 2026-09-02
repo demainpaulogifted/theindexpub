@@ -6,15 +6,17 @@ const SITE_URL =
 export default async function sitemap() {
   const now = new Date();
 
+  // Get published articles
   const { data: articles, error: articlesError } = await supabase
     .from("articles")
-    .select("slug,published_at")
+    .select("slug, published_at")
     .eq("published", true);
 
   if (articlesError) {
     console.error("Sitemap articles error:", articlesError);
   }
 
+  // Get categories
   const { data: categories, error: categoriesError } = await supabase
     .from("categories")
     .select("slug");
@@ -23,6 +25,7 @@ export default async function sitemap() {
     console.error("Sitemap categories error:", categoriesError);
   }
 
+  // Get published pages
   const { data: pages, error: pagesError } = await supabase
     .from("pages")
     .select("slug")
@@ -33,68 +36,21 @@ export default async function sitemap() {
   }
 
   const urls = [
+    // Homepage
     {
       url: SITE_URL,
       lastModified: now,
       changeFrequency: "daily",
       priority: 1,
     },
-
-    {
-      url: `${SITE_URL}/about`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.5,
-    },
-
-    {
-      url: `${SITE_URL}/contact`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.5,
-    },
-
-    {
-      url: `${SITE_URL}/advertise`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.5,
-    },
-
-    {
-      url: `${SITE_URL}/faq`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.5,
-    },
-
-    {
-      url: `${SITE_URL}/editorial-policy`,
-      lastModified: now,
-      changeFrequency: "yearly",
-      priority: 0.4,
-    },
-
-    {
-      url: `${SITE_URL}/privacy-policy`,
-      lastModified: now,
-      changeFrequency: "yearly",
-      priority: 0.3,
-    },
-
-    {
-      url: `${SITE_URL}/terms-and-conditions`,
-      lastModified: now,
-      changeFrequency: "yearly",
-      priority: 0.3,
-    },
   ];
 
+  // Articles
   for (const article of articles || []) {
     if (!article.slug) continue;
 
     urls.push({
-      url: `${SITE_URL}/article/${article.slug}`,
+      url: `\( {SITE_URL}/article/ \){article.slug}`,
       lastModified: article.published_at
         ? new Date(article.published_at)
         : now,
@@ -103,22 +59,24 @@ export default async function sitemap() {
     });
   }
 
+  // Categories
   for (const category of categories || []) {
     if (!category.slug) continue;
 
     urls.push({
-      url: `${SITE_URL}/category/${category.slug}`,
+      url: `\( {SITE_URL}/category/ \){category.slug}`,
       lastModified: now,
       changeFrequency: "daily",
       priority: 0.7,
     });
   }
 
+  // Pages (only the real /page/... versions)
   for (const page of pages || []) {
     if (!page.slug) continue;
 
     urls.push({
-      url: `${SITE_URL}/page/${page.slug}`,
+      url: `\( {SITE_URL}/page/ \){page.slug}`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.5,
