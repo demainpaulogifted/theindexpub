@@ -36,7 +36,6 @@ export default async function sitemap() {
   }
 
   const urls = [
-    // Homepage
     {
       url: SITE_URL,
       lastModified: now,
@@ -50,7 +49,7 @@ export default async function sitemap() {
     if (!article.slug) continue;
 
     urls.push({
-      url: `\( {SITE_URL}/article/ \){article.slug}`,
+      url: `${SITE_URL}/article/${article.slug}`,
       lastModified: article.published_at
         ? new Date(article.published_at)
         : now,
@@ -64,19 +63,19 @@ export default async function sitemap() {
     if (!category.slug) continue;
 
     urls.push({
-      url: `\( {SITE_URL}/category/ \){category.slug}`,
+      url: `${SITE_URL}/category/${category.slug}`,
       lastModified: now,
       changeFrequency: "daily",
       priority: 0.7,
     });
   }
 
-  // Pages (only the real /page/... versions)
+  // Pages
   for (const page of pages || []) {
     if (!page.slug) continue;
 
     urls.push({
-      url: `\( {SITE_URL}/page/ \){page.slug}`,
+      url: `${SITE_URL}/page/${page.slug}`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.5,
