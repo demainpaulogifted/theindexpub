@@ -76,12 +76,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <Script
-          src="https://quge5.com/88/tag.min.js"
-          data-zone="287361"
-          async
-          data-cfasync="false"
-        />
+        {/* Monetag Multitag code goes here */}
       </head>
 
       <body>
