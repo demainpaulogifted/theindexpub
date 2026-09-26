@@ -6,17 +6,18 @@ const SITE_URL =
 export default async function sitemap() {
   const now = new Date();
 
-  // Get published articles
+  // Published articles (posts table)
   const { data: articles, error: articlesError } = await supabase
-    .from("articles")
-    .select("slug, published_at")
-    .eq("published", true);
+    .from("posts")
+    .select("slug, published_at, updated_at")
+    .eq("status", "PUBLISHED")
+    .eq("no_index", false);
 
   if (articlesError) {
     console.error("Sitemap articles error:", articlesError);
   }
 
-  // Get categories
+  // Categories
   const { data: categories, error: categoriesError } = await supabase
     .from("categories")
     .select("slug");
@@ -25,7 +26,7 @@ export default async function sitemap() {
     console.error("Sitemap categories error:", categoriesError);
   }
 
-  // Get published pages
+  // Published pages
   const { data: pages, error: pagesError } = await supabase
     .from("pages")
     .select("slug")
@@ -49,9 +50,9 @@ export default async function sitemap() {
     if (!article.slug) continue;
 
     urls.push({
-      url: `${SITE_URL}/article/${article.slug}`,
-      lastModified: article.published_at
-        ? new Date(article.published_at)
+      url: `\( {SITE_URL}/article/ \){article.slug}`,
+      lastModified: article.updated_at || article.published_at
+        ? new Date(article.updated_at || article.published_at)
         : now,
       changeFrequency: "weekly",
       priority: 0.8,
@@ -63,7 +64,7 @@ export default async function sitemap() {
     if (!category.slug) continue;
 
     urls.push({
-      url: `${SITE_URL}/category/${category.slug}`,
+      url: `\( {SITE_URL}/category/ \){category.slug}`,
       lastModified: now,
       changeFrequency: "daily",
       priority: 0.7,
@@ -75,7 +76,7 @@ export default async function sitemap() {
     if (!page.slug) continue;
 
     urls.push({
-      url: `${SITE_URL}/page/${page.slug}`,
+      url: `\( {SITE_URL}/page/ \){page.slug}`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.5,
