@@ -36,7 +36,6 @@ export async function generateMetadata() {
       index: true,
       follow: true,
     },
-    // Monetag verification
     other: {
       monetag: "4f8f90ddb3ecd5826b2123fed4df88dd",
     },
@@ -76,16 +75,17 @@ export async function generateMetadata() {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>
-        {children}
-
-        {/* Monetag Multitag */}
+      <head>
         <Script
           src="https://quge5.com/88/tag.min.js"
           data-zone="287361"
-          strategy="afterInteractive"
+          async
           data-cfasync="false"
         />
+      </head>
+
+      <body>
+        {children}
       </body>
     </html>
   );
