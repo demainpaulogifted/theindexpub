@@ -6,7 +6,6 @@ const SITE_URL =
 export default async function sitemap() {
   const now = new Date();
 
-  // Published articles
   const { data: articles, error: articlesError } = await supabase
     .from("posts")
     .select("slug, published_at, updated_at")
@@ -17,7 +16,6 @@ export default async function sitemap() {
     console.error("Sitemap articles error:", articlesError);
   }
 
-  // Categories
   const { data: categories, error: categoriesError } = await supabase
     .from("categories")
     .select("slug");
@@ -26,7 +24,6 @@ export default async function sitemap() {
     console.error("Sitemap categories error:", categoriesError);
   }
 
-  // Published pages
   const { data: pages, error: pagesError } = await supabase
     .from("pages")
     .select("slug")
@@ -45,12 +42,11 @@ export default async function sitemap() {
     },
   ];
 
-  // Articles
   for (const article of articles || []) {
     if (!article.slug) continue;
 
     urls.push({
-      url: `\( {SITE_URL}/article/ \){article.slug}`,
+      url: SITE_URL + "/article/" + article.slug,
       lastModified: article.updated_at || article.published_at
         ? new Date(article.updated_at || article.published_at)
         : now,
@@ -59,24 +55,22 @@ export default async function sitemap() {
     });
   }
 
-  // Categories
   for (const category of categories || []) {
     if (!category.slug) continue;
 
     urls.push({
-      url: `\( {SITE_URL}/category/ \){category.slug}`,
+      url: SITE_URL + "/category/" + category.slug,
       lastModified: now,
       changeFrequency: "daily",
       priority: 0.7,
     });
   }
 
-  // Pages
   for (const page of pages || []) {
     if (!page.slug) continue;
 
     urls.push({
-      url: `\( {SITE_URL}/page/ \){page.slug}`,
+      url: SITE_URL + "/page/" + page.slug,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.5,
