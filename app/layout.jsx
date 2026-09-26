@@ -35,6 +35,10 @@ export async function generateMetadata() {
       index: true,
       follow: true,
     },
+    // Monetag verification
+    other: {
+      monetag: "4f8f90ddb3ecd5826b2123fed4df88dd",
+    },
   };
 
   if (settings?.favicon_url) {
