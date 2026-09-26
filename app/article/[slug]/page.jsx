@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
+import Script from "next/script" // <-- ADDED: Next.js Script component
 
 import SiteChrome from "../../../components/SiteChrome"
 import ViewTracker from "../../../components/ViewTracker"
@@ -212,214 +213,223 @@ export default async function ArticlePage({ params }) {
   )
 
   return (
-    <SiteChrome
-      siteName={settings?.site_name || "THE INDEX"}
-      description={settings?.description || ""}
-      categories={categories}
-      pages={pages}
-      socialLinks={socialLinks}
-    >
-      <main className="article-page">
-        <div className="container">
-          <header className="article-header">
-            {article.categories && (
-              <div className="article-category">
-                {Array.isArray(article.categories)
-                  ? article.categories
-                      .map((category) => category.name)
-                      .join(" • ")
-                  : article.categories.name}
-              </div>
-            )}
+    <>
+      {/* ✅ NEW: VIGNETTE BANNER (Zone: 11900792) - ONLY loads on article pages */}
+      <Script
+        src="https://n6wxm.com/vignette.min.js"
+        data-zone="11900792"
+        strategy="afterInteractive"
+      />
 
-            <h1>{article.title}</h1>
+      <SiteChrome
+        siteName={settings?.site_name || "THE INDEX"}
+        description={settings?.description || ""}
+        categories={categories}
+        pages={pages}
+        socialLinks={socialLinks}
+      >
+        <main className="article-page">
+          <div className="container">
+            <header className="article-header">
+              {article.categories && (
+                <div className="article-category">
+                  {Array.isArray(article.categories)
+                    ? article.categories
+                        .map((category) => category.name)
+                        .join(" • ")
+                    : article.categories.name}
+                </div>
+              )}
 
-            {article.excerpt && (
-              <p className="hero-description">{article.excerpt}</p>
-            )}
+              <h1>{article.title}</h1>
 
-            {article.published_at && (
-              <time
-                className="article-date"
-                dateTime={article.published_at}
-              >
-                {new Date(article.published_at).toLocaleDateString()}
-              </time>
-            )}
-          </header>
+              {article.excerpt && (
+                <p className="hero-description">{article.excerpt}</p>
+              )}
 
-          {article.featured_image && (
-            <img
-              src={article.featured_image}
-              alt={article.title}
-              className="article-image"
-              style={{
-                maxWidth: "900px",
-                width: "100%",
-                marginBottom: "40px",
-              }}
-            />
-          )}
+              {article.published_at && (
+                <time
+                  className="article-date"
+                  dateTime={article.published_at}
+                >
+                  {new Date(article.published_at).toLocaleDateString()}
+                </time>
+              )}
+            </header>
 
-          {/* TOP OF ARTICLE AD */}
-          {topAds.length > 0 && (
-            <div style={{ marginBottom: "32px" }}>
-              {topAds.map((ad) => (
-                <AdBanner key={ad.id} ad={ad} />
-              ))}
-            </div>
-          )}
-
-          {/* ARTICLE CONTENT + SMART IN-CONTENT ADS */}
-          <div className="article-content">
-            {contentBlocks.map((block, index) => {
-              if (block.type === "ad") {
-                return (
-                  <AdBanner
-                    key={`ad-\( {block.ad.id}- \){index}`}
-                    ad={block.ad}
-                  />
-                )
-              }
-
-              return (
-                <div
-                  key={`html-${index}`}
-                  dangerouslySetInnerHTML={{ __html: block.content }}
-                />
-              )
-            })}
-          </div>
-
-          {/* BOTTOM OF ARTICLE AD */}
-          {bottomAds.length > 0 && (
-            <div style={{ marginTop: "40px" }}>
-              {bottomAds.map((ad) => (
-                <AdBanner key={ad.id} ad={ad} />
-              ))}
-            </div>
-          )}
-
-          {/* SHARE + LIKE */}
-          <ArticleActions
-            articleId={article.id}
-            title={article.title}
-            slug={article.slug}
-            excerpt={article.excerpt || ""}
-          />
-
-          <ViewTracker articleId={article.id} />
-
-          {recommendedArticles.length > 0 && (
-            <section
-              className="recommended-articles"
-              style={{
-                marginTop: "60px",
-                paddingTop: "40px",
-                borderTop: "1px solid #e5e5e5",
-              }}
-            >
-              <h2
+            {article.featured_image && (
+              <img
+                src={article.featured_image}
+                alt={article.title}
+                className="article-image"
                 style={{
-                  fontSize: "28px",
-                  fontWeight: 700,
-                  marginBottom: "24px",
+                  maxWidth: "900px",
+                  width: "100%",
+                  marginBottom: "40px",
                 }}
-              >
-                More from THE INDEX
-              </h2>
+              />
+            )}
 
-              <p className="muted" style={{ marginBottom: "28px" }}>
-                More stories you may find interesting.
-              </p>
-
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns:
-                    "repeat(auto-fit, minmax(240px, 1fr))",
-                  gap: "24px",
-                }}
-              >
-                {recommendedArticles.map((recommended) => (
-                  <Link
-                    key={recommended.id}
-                    href={`/article/${recommended.slug}`}
-                    style={{
-                      textDecoration: "none",
-                      color: "inherit",
-                    }}
-                  >
-                    <article
-                      style={{
-                        border: "1px solid #e5e5e5",
-                        borderRadius: "16px",
-                        overflow: "hidden",
-                        height: "100%",
-                      }}
-                    >
-                      {recommended.featured_image && (
-                        <img
-                          src={recommended.featured_image}
-                          alt={recommended.title}
-                          style={{
-                            width: "100%",
-                            aspectRatio: "16 / 9",
-                            objectFit: "cover",
-                          }}
-                        />
-                      )}
-
-                      <div style={{ padding: "20px" }}>
-                        {recommended.categories && (
-                          <div
-                            style={{
-                              fontSize: "12px",
-                              fontWeight: 600,
-                              textTransform: "uppercase",
-                              marginBottom: "8px",
-                            }}
-                          >
-                            {Array.isArray(recommended.categories)
-                              ? recommended.categories
-                                  .map((c) => c.name)
-                                  .join(" • ")
-                              : recommended.categories.name}
-                          </div>
-                        )}
-
-                        <h3
-                          style={{
-                            fontSize: "19px",
-                            lineHeight: 1.3,
-                            fontWeight: 700,
-                            margin: "0 0 10px",
-                          }}
-                        >
-                          {recommended.title}
-                        </h3>
-
-                        {recommended.excerpt && (
-                          <p
-                            style={{
-                              fontSize: "14px",
-                              lineHeight: 1.5,
-                              margin: 0,
-                              opacity: 0.7,
-                            }}
-                          >
-                            {recommended.excerpt}
-                          </p>
-                        )}
-                      </div>
-                    </article>
-                  </Link>
+            {/* TOP OF ARTICLE AD */}
+            {topAds.length > 0 && (
+              <div style={{ marginBottom: "32px" }}>
+                {topAds.map((ad) => (
+                  <AdBanner key={ad.id} ad={ad} />
                 ))}
               </div>
-            </section>
-          )}
-        </div>
-      </main>
-    </SiteChrome>
+            )}
+
+            {/* ARTICLE CONTENT + SMART IN-CONTENT ADS */}
+            <div className="article-content">
+              {contentBlocks.map((block, index) => {
+                if (block.type === "ad") {
+                  return (
+                    <AdBanner
+                      key={`ad-${block.ad.id}-${index}`}
+                      ad={block.ad}
+                    />
+                  )
+                }
+
+                return (
+                  <div
+                    key={`html-${index}`}
+                    dangerouslySetInnerHTML={{ __html: block.content }}
+                  />
+                )
+              })}
+            </div>
+
+            {/* BOTTOM OF ARTICLE AD */}
+            {bottomAds.length > 0 && (
+              <div style={{ marginTop: "40px" }}>
+                {bottomAds.map((ad) => (
+                  <AdBanner key={ad.id} ad={ad} />
+                ))}
+              </div>
+            )}
+
+            {/* SHARE + LIKE */}
+            <ArticleActions
+              articleId={article.id}
+              title={article.title}
+              slug={article.slug}
+              excerpt={article.excerpt || ""}
+            />
+
+            <ViewTracker articleId={article.id} />
+
+            {recommendedArticles.length > 0 && (
+              <section
+                className="recommended-articles"
+                style={{
+                  marginTop: "60px",
+                  paddingTop: "40px",
+                  borderTop: "1px solid #e5e5e5",
+                }}
+              >
+                <h2
+                  style={{
+                    fontSize: "28px",
+                    fontWeight: 700,
+                    marginBottom: "24px",
+                  }}
+                >
+                  More from THE INDEX
+                </h2>
+
+                <p className="muted" style={{ marginBottom: "28px" }}>
+                  More stories you may find interesting.
+                </p>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns:
+                      "repeat(auto-fit, minmax(240px, 1fr))",
+                    gap: "24px",
+                  }}
+                >
+                  {recommendedArticles.map((recommended) => (
+                    <Link
+                      key={recommended.id}
+                      href={`/article/${recommended.slug}`}
+                      style={{
+                        textDecoration: "none",
+                        color: "inherit",
+                      }}
+                    >
+                      <article
+                        style={{
+                          border: "1px solid #e5e5e5",
+                          borderRadius: "16px",
+                          overflow: "hidden",
+                          height: "100%",
+                        }}
+                      >
+                        {recommended.featured_image && (
+                          <img
+                            src={recommended.featured_image}
+                            alt={recommended.title}
+                            style={{
+                              width: "100%",
+                              aspectRatio: "16 / 9",
+                              objectFit: "cover",
+                            }}
+                          />
+                        )}
+
+                        <div style={{ padding: "20px" }}>
+                          {recommended.categories && (
+                            <div
+                              style={{
+                                fontSize: "12px",
+                                fontWeight: 600,
+                                textTransform: "uppercase",
+                                marginBottom: "8px",
+                              }}
+                            >
+                              {Array.isArray(recommended.categories)
+                                ? recommended.categories
+                                    .map((c) => c.name)
+                                    .join(" • ")
+                                : recommended.categories.name}
+                            </div>
+                          )}
+
+                          <h3
+                            style={{
+                              fontSize: "19px",
+                              lineHeight: 1.3,
+                              fontWeight: 700,
+                              margin: "0 0 10px",
+                            }}
+                          >
+                            {recommended.title}
+                          </h3>
+
+                          {recommended.excerpt && (
+                            <p
+                              style={{
+                                fontSize: "14px",
+                                lineHeight: 1.5,
+                                margin: 0,
+                                opacity: 0.7,
+                              }}
+                            >
+                              {recommended.excerpt}
+                            </p>
+                          )}
+                        </div>
+                      </article>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
+        </main>
+      </SiteChrome>
+    </>
   )
 }
