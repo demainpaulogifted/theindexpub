@@ -1,4 +1,5 @@
 import "./globals.css";
+import Script from "next/script";
 
 import {
   getSiteSettings,
@@ -75,7 +76,17 @@ export async function generateMetadata() {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {children}
+
+        {/* Monetag Multitag */}
+        <Script
+          src="https://quge5.com/88/tag.min.js"
+          data-zone="287361"
+          strategy="afterInteractive"
+          data-cfasync="false"
+        />
+      </body>
     </html>
   );
 }
