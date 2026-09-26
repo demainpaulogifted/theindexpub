@@ -52,19 +52,29 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        {/* ✅ ONLY IN-PAGE PUSH (Zone: 11900798) - Clean, non-intrusive, stays on page */}
+        {/* ✅ IN-PAGE PUSH (Zone: 11900798) - Using beforeInteractive for faster load */}
         <Script
           src="https://nap5k.com/tag.min.js"
           data-zone="11900798"
-          strategy="afterInteractive"
+          strategy="beforeInteractive"
         />
-        
-        {/* ❌ MULTITAG (287365) HAS BEEN REMOVED TO STOP POPUNDERS/ONCLICK ADS */}
       </head>
 
       <body>
         {children}
-.
+        
+        {/* ✅ Dedicated container for In-Page Push to mount into */}
+        <div 
+          id="monetag-inpage-push-container" 
+          style={{ 
+            position: 'fixed', 
+            top: 0, 
+            left: 0, 
+            right: 0, 
+            zIndex: 9999,
+            pointerEvents: 'none'
+          }} 
+        />
       </body>
     </html>
   );
