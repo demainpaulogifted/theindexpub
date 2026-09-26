@@ -6,7 +6,7 @@ const SITE_URL =
 export default async function sitemap() {
   const now = new Date();
 
-  // Published articles (posts table)
+  // Published articles
   const { data: articles, error: articlesError } = await supabase
     .from("posts")
     .select("slug, published_at, updated_at")
